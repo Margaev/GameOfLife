@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.util.Random;
 
+// Conway's Game of life
 public class GameOfLife {
     private byte[][] cells;
     private byte[][] cellsNew;
