@@ -1,21 +1,17 @@
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class GameOfLife {
     private byte[][] cells;
     private byte[][] cellsNew;
 
-    private int arraySizeX = 100;
-    private int arraySizeY = 100;
+    private int arraySizeX = 1920;
+    private int arraySizeY = 1080;
 
-    private int canvasWidth = 900;
-    private int canvasHeight = 900;
+    private int canvasWidth = 1920;
+    private int canvasHeight = 1080;
 
-    private int fillingPercent = 15;
-
-    List<Point> pointList = new ArrayList<>();
+    private int fillingPercent = 50;
 
     public GameOfLife() {
         // setting up
@@ -25,6 +21,8 @@ public class GameOfLife {
 
         fillRandomly(cells);
 
+        StdDraw.enableDoubleBuffering();
+
         StdDraw.setCanvasSize(canvasWidth, canvasHeight);
         StdDraw.setXscale(0, arraySizeX - 1);
         StdDraw.setYscale(0, arraySizeY - 1);
@@ -33,11 +31,11 @@ public class GameOfLife {
     }
 
     private void createTestGlider(byte[][] arr) {
-        arr[2][3] = 1; pointList.add(new Point(2, 3));
-        arr[3][4] = 1; pointList.add(new Point(3, 4));
-        arr[4][2] = 1; pointList.add(new Point(4, 2));
-        arr[4][3] = 1; pointList.add(new Point(4, 3));
-        arr[4][4] = 1; pointList.add(new Point(4, 4));
+        arr[2][3] = 1;
+        arr[3][4] = 1;
+        arr[4][2] = 1;
+        arr[4][3] = 1;
+        arr[4][4] = 1;
     }
 
     public static void main(String[] args) {
@@ -66,7 +64,6 @@ public class GameOfLife {
                 if (p > 100 - fillingPercent)
                 {
                     arr[i][j] = 1;
-                    pointList.add(new Point(i, j));
                 }
             }
         }
@@ -89,11 +86,9 @@ public class GameOfLife {
 
                 if (count == 3 && cells[i][j] == 0) {
                     cellsNew[i][j] = 1;
-                    pointList.add(new Point(i, j));
                 } else {
                     if ((count == 2 || count == 3) && cells[i][j] == 1) {
                         cellsNew[i][j] = 1;
-                        pointList.add(new Point(i, j));
                     } else {
                         cellsNew[i][j] = 0;
                     }
@@ -107,26 +102,14 @@ public class GameOfLife {
     public void draw() {
         StdDraw.clear(Color.WHITE);
 
-//        for (int i = 0; i < cells.length; i++) {
-//            for (int j = 0; j < cells[0].length; j++) {
-//                if (cells[i][j] == 1) {
-//                    StdDraw.filledSquare(i, j, 0.5f);
-//                }
-//            }
-//        }
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[0].length; j++) {
+                if (cells[i][j] == 1) {
+                    StdDraw.filledSquare(i, j, 0.5f);
+                }
+            }
+        }
 
-//        for (Point point: pointList) {
-//            StdDraw.filledSquare(point.x, point.y, 0.5f);
-//        }
-
-        pointList.parallelStream().forEach(point -> StdDraw.filledSquare(point.x, point.y, 0.5f));
-
-        pointList.clear();
-
-//        try {
-//            Thread.sleep(100);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        StdDraw.show();
     }
 }
