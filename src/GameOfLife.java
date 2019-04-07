@@ -6,19 +6,23 @@ public class GameOfLife {
     private byte[][] cells;
     private byte[][] cellsNew;
 
-    private int arraySizeX = 1920;
-    private int arraySizeY = 1080;
+    private int arraySizeX = 1280;
+    private int arraySizeY = 720;
 
-    private int canvasWidth = 1920;
-    private int canvasHeight = 1080;
+    private int canvasWidth = 1280;
+    private int canvasHeight = 720;
 
-    private int fillingPercent = 50;
+    private int fillingPercent = 15;
+
+    private boolean reverted = false;
 
     public GameOfLife() {
         // setting up
         cells = new byte[arraySizeX][arraySizeY];
+        cellsNew = new byte[arraySizeX][arraySizeY];
 
 //        createTestGlider(cells);
+//        createBlinker(cells);
 
         fillRandomly(cells);
 
@@ -29,6 +33,12 @@ public class GameOfLife {
         StdDraw.setYscale(0, arraySizeY - 1);
         StdDraw.clear(Color.WHITE);
         StdDraw.setPenColor(Color.BLACK);
+    }
+
+    private void createBlinker(byte[][] arr) {
+        arr[2][1] = 1;
+        arr[2][2] = 1;
+        arr[2][3] = 1;
     }
 
     private void createTestGlider(byte[][] arr) {
@@ -42,11 +52,19 @@ public class GameOfLife {
     public static void main(String[] args) {
         GameOfLife game = new GameOfLife();
 
-        for (; ; ) {
+        for (;;) {
             long tStart = System.currentTimeMillis();
 
-            game.draw();
-            game.nextEpoch();
+
+            if (!game.reverted) {
+                game.draw(game.cells);
+                game.nextEpoch(game.cells, game.cellsNew);
+            } else {
+                game.draw(game.cellsNew);
+                game.nextEpoch(game.cellsNew, game.cells);
+            }
+
+            game.reverted = !game.reverted;
 
             long tFrame = System.currentTimeMillis() - tStart;
             String time = "frame: " + tFrame + "ms";
@@ -61,8 +79,8 @@ public class GameOfLife {
 
         for (int i = 0; i < arr.length; i += 1) {
             for (int j = 0; j < arr[0].length; j += 1) {
-                int p = rnd.nextInt(101);
-                if (p > 100 - fillingPercent)
+                int p = rnd.nextInt(100) + 1;
+                if (p > (100 - fillingPercent))
                 {
                     arr[i][j] = 1;
                 }
@@ -70,42 +88,39 @@ public class GameOfLife {
         }
     }
 
-    public void nextEpoch() {
-        cellsNew = new byte[arraySizeX][arraySizeY];
-
+    private void nextEpoch(byte[][] oldCells, byte[][] newCells) {
         for (int i = 1; i < cells.length - 1; i++) {
             for (int j = 1; j < cells[0].length - 1; j++) {
                 int count = 0;
 
                 for (int k = -1; k <= 1; k++) {
                     for (int l = -1; l <= 1; l++) {
-                        count += cells[i + k][j + l];
+                        count += oldCells[i + k][j + l];
                     }
                 }
 
-                count -= cells[i][j];
+                count -= oldCells[i][j];
 
-                if (count == 3 && cells[i][j] == 0) {
-                    cellsNew[i][j] = 1;
+                if ((count == 3) && (oldCells[i][j] == 0)) {
+                    newCells[i][j] = 1;
                 } else {
-                    if ((count == 2 || count == 3) && cells[i][j] == 1) {
-                        cellsNew[i][j] = 1;
+                    if (((count == 2) || (count == 3)) && (oldCells[i][j] == 1)) {
+                        newCells[i][j] = 1;
                     } else {
-                        cellsNew[i][j] = 0;
+                        newCells[i][j] = 0;
                     }
                 }
             }
         }
-
-        cells = cellsNew;
     }
 
-    public void draw() {
+
+    public void draw(byte[][] arr) {
         StdDraw.clear(Color.WHITE);
 
-        for (int i = 0; i < cells.length; i++) {
-            for (int j = 0; j < cells[0].length; j++) {
-                if (cells[i][j] == 1) {
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[0].length; j++) {
+                if (arr[i][j] == 1) {
                     StdDraw.filledSquare(i, j, 0.5f);
                 }
             }
